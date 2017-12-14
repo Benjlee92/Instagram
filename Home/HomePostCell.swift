@@ -1,19 +1,21 @@
 //
-//  UserProfilePhotoCell.swift
+//  HomePostCell.swift
 //  InstagramLBTA
 //
-//  Created by Ben on 12/13/17.
+//  Created by Ben on 12/14/17.
 //  Copyright © 2017 Ben. All rights reserved.
 //
 
 import Foundation
 import UIKit
-class UserProfilePhotoCell: UICollectionViewCell {
+
+class HomePostCell: UICollectionViewCell {
     
     var post: Post? {
         didSet {
-            guard let imageUrl = post?.imageUrl else { return}
-            photoImageView.loadImage(urlString: imageUrl)
+            print(post?.imageUrl)
+            guard let postImageUrl = post?.imageUrl else {return}
+            photoImageView.loadImage(urlString: postImageUrl)
         }
     }
     
@@ -35,5 +37,4 @@ class UserProfilePhotoCell: UICollectionViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }
