@@ -16,16 +16,53 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateFeed), name: SharePhotoController.updateFeedNotificationName, object: nil)
         collectionView?.backgroundColor = .white
         
         collectionView?.register(HomePostCell.self, forCellWithReuseIdentifier: cellId)
         
         setupNavigationItems()
-        fetchPosts()
+        fetchAllPosts()
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        collectionView?.refreshControl = refreshControl
+        
+    }
+    
+    @objc func handleUpdateFeed() {
+        handleRefresh()
+    }
+    
+    @objc func handleRefresh() {
+        print("Handle refresh")
+        posts.removeAll()
+        fetchAllPosts()
+    }
+    
+    fileprivate func fetchFollowingUserIds() {
+        guard let uid = Auth.auth().currentUser?.uid else {return}
+        Database.database().reference().child("following").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            print(snapshot.value)
+            guard let userIdDictionary = snapshot.value as? [String: Any] else {return}
+            userIdDictionary.forEach({ (key, value) in
+                Database.fetchUserWithUid(uid: key, completion: { (user) in
+                    self.fetchPostsWithUser(user: user)
+                })
+            })
+            
+        }) { (err) in
+            print("Failed to fetch following users:", err)
+        }
     }
     
     fileprivate func setupNavigationItems() {
         navigationItem.titleView = UIImageView(image: #imageLiteral(resourceName: "logo2"))
+    }
+    
+    fileprivate func fetchAllPosts() {
+        fetchPosts()
+        fetchFollowingUserIds()
     }
     
     var posts = [Post]()
@@ -41,8 +78,9 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     fileprivate func fetchPostsWithUser(user: User) {
 
         let ref = Database.database().reference().child("posts").child(user.uid)
-        
         ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            self.collectionView?.refreshControl?.endRefreshing()
+
             guard let dictionaries = snapshot.value as? [String : Any] else {return}
             dictionaries.forEach({ (key, value) in
                 
@@ -52,6 +90,10 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
                 let post = Post(user: user, dictionary: dictionary)
                 self.posts.append(post)
                 
+            })
+            
+            self.posts.sort(by: { (p1, p2) -> Bool in
+                return p1.creationDate.compare(p2.creationDate) == .orderedDescending
             })
             
             self.collectionView?.reloadData()

@@ -21,6 +21,7 @@ class LoginController: UIViewController {
         tf.addTarget(self, action: #selector(handleTextInputChanged), for: .editingChanged)
         return tf
         
+        
     }()
     
     let passwordTextField: UITextField = {
