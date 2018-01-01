@@ -58,6 +58,11 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     fileprivate func setupNavigationItems() {
         navigationItem.titleView = UIImageView(image: #imageLiteral(resourceName: "logo2"))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "camera3").withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handleCamera))
+    }
+    
+    @objc func handleCamera() {
+        
     }
     
     fileprivate func fetchAllPosts() {
@@ -83,6 +88,8 @@ class HomeController: UICollectionViewController, UICollectionViewDelegateFlowLa
 
             guard let dictionaries = snapshot.value as? [String : Any] else {return}
             dictionaries.forEach({ (key, value) in
+                
+                print("SNAPSHOT: ", snapshot.value)
                 
                 guard let dictionary = value as? [String : Any] else {return}
                 let imageUrl = dictionary["imageUrl"] as? String

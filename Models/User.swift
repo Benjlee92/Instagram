@@ -12,6 +12,7 @@ struct User {
     let uid: String
     let username: String
     let profileImageUrl: String
+    
     init(uid: String, dictionary : [String: Any]) {
         self.username = dictionary["Username"] as? String ?? ""
         self.profileImageUrl = dictionary["ProfileImageUrl"] as? String ?? ""

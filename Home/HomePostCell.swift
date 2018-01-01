@@ -13,7 +13,7 @@ class HomePostCell: UICollectionViewCell {
     
     var post: Post? {
         didSet {
-            print(post?.imageUrl)
+            print("POSTIMAGE URL: ", post?.imageUrl)
             guard let postImageUrl = post?.imageUrl else {return}
              guard let username = post?.user.username else {return}
             photoImageView.loadImage(urlString: postImageUrl)
